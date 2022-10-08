@@ -31,11 +31,11 @@ TIME_NOW = dt.now().strftime('%D_%H:%M')
 
 # функция обратного вызова точки входа в разговор
 
-def start(update, _):
+def start(update, context):
     reply_keyboard = [['GO ➡']]
     markup_key = ReplyKeyboardMarkup(
         reply_keyboard, resize_keyboard=True, one_time_keyboard=True)
-    # bot.send_sticker(update.message.chat.id, st.welcome)
+    context.bot.send_sticker(update.message.chat.id, st.welcome)
     bot.send_message(update.effective_chat.id,
                      f'Здраствуйте мастер {update.effective_user.first_name}, я Альфред, ваш персональный помощник')
     update.message.reply_text(
@@ -45,25 +45,25 @@ def start(update, _):
 def main_menu():
     return MENU
 
-def show_menu(update, _):
+def show_menu(update, context):
     reply_keyboard = [['👀 VIEW', '📝 ADD','🔎 SEARCH', '❌ DELETE', '✍ EDIT', '🚪 EXIT']]
     markup_key = ReplyKeyboardMarkup(
         reply_keyboard, resize_keyboard=True, one_time_keyboard=True)
-    # bot.send_sticker(update.message.chat.id, st.hello)
+    context.bot.send_sticker(update.message.chat.id, st.hello)
     update.message.reply_text('Чем займёмся, сэр? 🧐', reply_markup=markup_key)
     return MENU
 
-def menu(update, _):
+def menu(update, context):
     user = update.message.from_user
     logger.info("Выбор операции: %s: %s", user.first_name, update.message.text)
     choice = update.message.text
     if choice == '👀 VIEW':
-        return view(update, _)
+        return view(update, context)
     if choice == '📝 ADD':
         update.message.reply_text('Введите задачу сэр: ')
         return ADD
     if choice == '🔎 SEARCH':
-        # bot.send_sticker(update.message.chat.id, st.listen)
+        context.bot.send_sticker(update.message.chat.id, st.listen)
         bot.send_message(update.effective_chat.id,
                      f'Что бы вы хотели найти, Мастер {update.effective_user.first_name}: ')
         return SEARCH
@@ -74,13 +74,13 @@ def menu(update, _):
         update.message.reply_text("Найти задачу для редактирования: ")
         return EDIT    
     if choice == '🚪 EXIT':
-        return cancel(update, _)
+        return cancel(update, context)
 
 
-def view(update, _):
+def view(update, context):
     user = update.message.from_user
     logger.info("Контакт %s: %s", user.first_name, update.message.text)
-    # bot.send_sticker(update.message.chat.id, st.view_sticker)
+    context.bot.send_sticker(update.message.chat.id, st.view_sticker)
     bot.send_message(update.effective_chat.id,
                      f'Давайте-ка взглянем на список задач мастер {update.effective_user.first_name} ⬇⬇⬇')
     tasks = read_csv()
@@ -88,7 +88,7 @@ def view(update, _):
     tasks_filter = o.filter_task(user.first_name, tasks)
     tasks_string = o.view_tasks(tasks_filter)
     update.message.reply_text(tasks_string)
-    return show_menu(update, _)
+    return show_menu(update, context)
 
 def add(update, context):
     user = update.message.from_user
@@ -122,7 +122,7 @@ def time(update, context):
     task['Задача'] = name
     tasks.append(task)
     o.write_csv(tasks)
-    # bot.send_sticker(update.message.chat.id, st.complete)
+    context.bot.send_sticker(update.message.chat.id, st.complete)
     bot.send_message(update.effective_chat.id,
                     f'Мастер {update.effective_user.first_name}, задача успешно добавлена!:')
     return show_menu(update, context)
@@ -146,43 +146,43 @@ def search(update, _):
     
 
 
-def delete(update, _):
+def delete(update, context):
     tasks = read_csv()
     user = update.message.from_user
     logger.info("Выбор удаления: %s: %s", user.first_name, update.message.text)
     searchstring = update.message.text
     o.delete_task(searchstring, tasks)
-    # bot.send_sticker(update.message.chat.id, st.complete)
+    context.bot.send_sticker(update.message.chat.id, st.complete)
     update.message.reply_text('Задача удалена, сэр.')
     o.write_csv(tasks)
-    return show_menu(update, _)
+    return show_menu(update, context)
 
     
-def edit(update, _):
+def edit(update, context):
     tasks = read_csv()
     user = update.message.from_user
     logger.info("Выбор редактирования: %s: %s", user.first_name, update.message.text)
     searchstring = update.message.text
     o.edit_task(searchstring, tasks)
-    # bot.send_sticker(update.message.chat.id, st.complete)
+    context.bot.send_sticker(update.message.chat.id, st.complete)
     update.message.reply_text('Задача отредактирована, сэр.')
     o.write_csv(tasks)
-    return show_menu(update, _)
+    return show_menu(update, context)
 
 
 
-def cancel(update, _):
+def cancel(update, context):
     # определяем пользователя
     user = update.message.from_user
     # Пишем в журнал о том, что пользователь не разговорчивый
     logger.info("Пользователь %s отменил разговор.", user.first_name)
     # Отвечаем на отказ поговорить
-    # bot.send_sticker(update.message.chat.id, st.goodbye)
+    context.bot.send_sticker(update.message.chat.id, st.goodbye)
     bot.send_message(update.effective_chat.id,
                      f'До новых встреч, мастер {update.effective_user.first_name}. 👋')
     update.message.reply_text(
         'Вы знаете где меня найти.',)
-    bot.send_sticker(update.message.chat.id, st.relax)
+    context.bot.send_sticker(update.message.chat.id, st.relax)
     return ConversationHandler.END
 
 

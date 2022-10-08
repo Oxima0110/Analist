@@ -94,6 +94,7 @@ def operatons_rational(update, context):
             result = rational_one / rational_two
         except:
             update.message.reply_text('Деление на ноль запрещено')
+            return start(update, context)
     update.message.reply_text(
         f'Результат: {rational_one} + {rational_two} = {result}')
     return start(update, context)
@@ -153,6 +154,7 @@ def operatons_complex(update, context):
             result = complex_one / complex_two
         except:
             update.message.reply_text('Деление на ноль запрещено')
+            return start(update, context)
     update.message.reply_text(
         f'Результат: {complex_one} + {complex_two} = {result}')
     return start(update, context)
